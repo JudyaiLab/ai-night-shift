@@ -99,6 +99,41 @@ find protocols/bot_inbox/ -name "*.json" ! -path "*/done/*"
 tail -20 protocols/night_chat.md
 ```
 
+### Gemini CLI YOLO Mode Not Activating
+
+When running Gemini CLI in a tmux session for automation, the `--yolo` flag may not automatically enable YOLO mode. The TUI shows "YOLO ctrl+y" (available but not active) instead of "shift+tab" (active).
+
+**Root cause:** Gemini CLI v0.33.0's `--yolo` flag doesn't reliably toggle YOLO in interactive TUI mode.
+
+**Fix:**
+
+1. Add to `~/.gemini/settings.json`:
+```json
+{
+  "approvalMode": "yolo"
+}
+```
+
+2. After starting the session, programmatically toggle YOLO:
+```bash
+# Wait for UI to render (look for "YOLO ctrl+y" + "Type your message")
+tmux capture-pane -t <session> -p | grep "YOLO"
+
+# Send Ctrl+Y to toggle
+tmux send-keys -t <session> C-y
+
+# Verify (should show "shift+tab")
+tmux capture-pane -t <session> -p | grep "shift+tab"
+```
+
+3. For production automation, implement a polling loop (up to 30 seconds) that:
+   - Captures the tmux pane every second
+   - Checks for UI readiness indicators
+   - Sends Ctrl+Y when ready
+   - Verifies the toggle succeeded
+
+See [gemini/README.md](../gemini/README.md#known-issue-yolo-mode-auto-enable) for implementation details.
+
 ## Getting Help
 
 - **GitHub Issues:** Report bugs or request features

@@ -58,3 +58,18 @@ The two modules are complementary:
 | Output | Code commits | Reports, messages |
 
 They share context through `night_chat.md` and `bot_inbox/`.
+
+## Known Issue: YOLO Mode Auto-Enable
+
+Gemini CLI's `--yolo` flag may not reliably enable YOLO mode in interactive (TUI) sessions. The TUI renders with YOLO available but not toggled on, requiring a manual Ctrl+Y press.
+
+**Workaround for tmux-based automation:**
+
+1. Add `"approvalMode": "yolo"` to `~/.gemini/settings.json`
+2. After starting the Gemini CLI session, poll the tmux pane output:
+   - Wait for `YOLO ctrl+y` AND `Type your message` to appear (UI ready)
+   - Send `tmux send-keys -t <session> C-y` to toggle YOLO on
+   - Verify `shift+tab` appears in the pane (YOLO active indicator)
+3. Allow up to 30 seconds for the TUI to fully render before giving up
+
+This has been tested with Gemini CLI v0.33.0. Future versions may fix the `--yolo` flag behavior.
