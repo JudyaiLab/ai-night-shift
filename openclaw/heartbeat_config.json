@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "_comment": "OpenClaw Heartbeat Configuration — periodic agent wake-up system",
+  "heartbeat": {
+    "name": "night-shift-heartbeat",
+    "description": "Periodic agent wake-up for task processing and system monitoring",
+    "schedule": {
+      "interval_minutes": 30,
+      "active_hours": {
+        "start": "01:00",
+        "end": "08:00",
+        "timezone": "Asia/Taipei"
+      }
+    },
+    "pre_check": {
+      "enabled": true,
+      "collect": [
+        "bot_inbox",
+        "task_board",
+        "system_health"
+      ],
+      "output_file": "heartbeat_data.txt"
+    },
+    "agent": {
+      "model": "your-preferred-model",
+      "instructions": "Process inbox items, handle assigned tasks, report actions taken",
+      "max_tokens": 4096,
+      "temperature": 0.3
+    },
+    "routing": {
+      "enabled": true,
+      "rules": [
+        {
+          "label": "agent-a",
+          "route_to": "agent_a_inbox"
+        },
+        {
+          "label": "agent-b",
+          "route_to": "agent_b_inbox"
+        }
+      ]
+    },
+    "reporting": {
+      "channel": "telegram",
+      "format": "actions_only",
+      "note": "Report what was done, not what was observed"
+    }
+  }
+}

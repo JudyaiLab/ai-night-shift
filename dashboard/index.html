@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Night Shift Dashboard</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --border: #334155;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #818cf8;
+            --accent-glow: rgba(129, 140, 248, 0.15);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --error: #f87171;
+            --info: #60a5fa;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+        }
+
+        [data-theme="light"] {
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --surface-hover: #f8fafc;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.1);
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { background: var(--surface-hover); }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .theme-toggle {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+        }
+
+        /* Status bar */
+        .status-bar {
+            display: flex;
+            gap: 1.5rem;
+            padding: 0.75rem 2rem;
+            background: var(--accent-glow);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot-green { background: var(--success); box-shadow: 0 0 6px var(--success); }
+        .dot-yellow { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+        .dot-red { background: var(--error); box-shadow: 0 0 6px var(--error); }
+        .dot-blue { background: var(--info); box-shadow: 0 0 6px var(--info); }
+        .dot-gray { background: var(--text-muted); }
+
+        /* Main grid */
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .main { grid-template-columns: 1fr; padding: 1rem; }
+            .header { padding: 1rem; }
+            .status-bar { padding: 0.75rem 1rem; }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .card-full { grid-column: 1 / -1; }
+
+        /* Agent cards */
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .agent-grid { grid-template-columns: 1fr; }
+        }
+
+        .agent-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .agent-avatar {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 0.5rem;
+            background: var(--accent-glow);
+            border: 2px solid var(--accent);
+        }
+
+        .agent-name { font-weight: 600; font-size: 0.95rem; }
+        .agent-engine { color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem; }
+        .agent-status { margin-top: 0.5rem; font-size: 0.8rem; }
+
+        /* Timeline */
+        .timeline {
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .timeline-item:last-child { border-bottom: none; }
+
+        .timeline-time {
+            color: var(--text-muted);
+            font-family: monospace;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            min-width: 48px;
+        }
+
+        .timeline-agent {
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .timeline-msg { color: var(--text); }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .stat-box {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Chat viewer */
+        .chat-viewer {
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.8rem;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .chat-line {
+            padding: 0.1rem 0;
+        }
+
+        .chat-ts { color: var(--text-muted); }
+        .chat-agent-claude { color: var(--accent); font-weight: 600; }
+        .chat-agent-gemini { color: var(--success); font-weight: 600; }
+        .chat-agent-heartbeat { color: var(--warning); font-weight: 600; }
+
+        /* Plugin list */
+        .plugin-list { list-style: none; }
+        .plugin-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+            font-size: 0.85rem;
+        }
+
+        .plugin-badge {
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-pre { background: #dbeafe; color: #1d4ed8; }
+        .badge-post { background: #dcfce7; color: #166534; }
+        .badge-task { background: #fef3c7; color: #92400e; }
+
+        [data-theme="dark"] .badge-pre { background: #1e3a5f; color: #93c5fd; }
+        [data-theme="dark"] .badge-post { background: #14532d; color: #86efac; }
+        [data-theme="dark"] .badge-task { background: #451a03; color: #fcd34d; }
+
+        /* File drop zone */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌙 AI Night Shift Dashboard</h1>
+        <div class="header-actions">
+            <button class="btn" id="loadDataBtn" onclick="loadData()">Load Reports</button>
+            <button class="btn btn-primary" id="refreshBtn" onclick="refreshAll()">Refresh</button>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+        </div>
+    </div>
+
+    <div class="status-bar" id="statusBar">
+        <div class="status-item">
+            <span class="status-dot dot-gray" id="shiftDot"></span>
+            <span id="shiftStatus">No data loaded</span>
+        </div>
+        <div class="status-item">
+            <span>Round: <strong id="roundInfo">—</strong></span>
+        </div>
+        <div class="status-item">
+            <span>Window: <strong id="windowInfo">—</strong></span>
+        </div>
+        <div class="status-item">
+            <span>Last update: <strong id="lastUpdate">—</strong></span>
+        </div>
+    </div>
+
+    <div class="main">
+        <!-- Agents -->
+        <div class="card card-full">
+            <div class="card-header">
+                Agents
+                <span id="agentCount" style="color:var(--text-muted);font-weight:400;font-size:0.8rem">0 active</span>
+            </div>
+            <div class="card-body">
+                <div class="agent-grid" id="agentGrid">
+                    <div class="agent-card">
+                        <div class="agent-avatar">🧠</div>
+                        <div class="agent-name">Claude Code</div>
+                        <div class="agent-engine">Developer Agent</div>
+                        <div class="agent-status">
+                            <span class="status-dot dot-gray"></span> Idle
+                        </div>
+                    </div>
+                    <div class="agent-card">
+                        <div class="agent-avatar">🔍</div>
+                        <div class="agent-name">Gemini</div>
+                        <div class="agent-engine">Research Agent</div>
+                        <div class="agent-status">
+                            <span class="status-dot dot-gray"></span> Idle
+                        </div>
+                    </div>
+                    <div class="agent-card">
+                        <div class="agent-avatar">💓</div>
+                        <div class="agent-name">Heartbeat</div>
+                        <div class="agent-engine">Coordinator Agent</div>
+                        <div class="agent-status">
+                            <span class="status-dot dot-gray"></span> Idle
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="card card-full">
+            <div class="card-header">Tonight's Stats</div>
+            <div class="card-body">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="statRounds">0</div>
+                        <div class="stat-label">Rounds</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statTasks">0</div>
+                        <div class="stat-label">Tasks Done</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statCommits">0</div>
+                        <div class="stat-label">Commits</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statAlerts">0</div>
+                        <div class="stat-label">Alerts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Night Chat -->
+        <div class="card">
+            <div class="card-header">
+                Night Chat
+                <span style="color:var(--text-muted);font-size:0.8rem" id="chatCount">0 messages</span>
+            </div>
+            <div class="card-body">
+                <div class="chat-viewer" id="chatViewer">
+                    <div class="drop-zone" id="chatDropZone">
+                        Drop <code>night_chat.md</code> here<br>
+                        <small>or click "Load Reports" to browse</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="card">
+            <div class="card-header">Activity Timeline</div>
+            <div class="card-body">
+                <div class="timeline" id="timeline">
+                    <div class="drop-zone" id="timelineDropZone">
+                        Drop report files here<br>
+                        <small>Supports: *_summary.md, *_round*.md</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plugins -->
+        <div class="card">
+            <div class="card-header">
+                Plugins
+                <span style="color:var(--text-muted);font-size:0.8rem" id="pluginCount">0 enabled</span>
+            </div>
+            <div class="card-body">
+                <ul class="plugin-list" id="pluginList">
+                    <li>
+                        <span class="plugin-badge badge-pre">PRE</span>
+                        System Health Check
+                    </li>
+                    <li>
+                        <span class="plugin-badge badge-pre">PRE</span>
+                        Backup
+                    </li>
+                    <li>
+                        <span class="plugin-badge badge-post">POST</span>
+                        Git Commit Summary
+                    </li>
+                    <li>
+                        <span class="plugin-badge badge-post">POST</span>
+                        Morning Report
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- System Health -->
+        <div class="card">
+            <div class="card-header">System Health</div>
+            <div class="card-body">
+                <div id="healthContent">
+                    <div class="drop-zone" id="healthDropZone">
+                        Drop <code>*_health.md</code> here
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Theme ──
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+            localStorage.setItem('theme', html.getAttribute('data-theme'));
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // ── Data State ──
+        const state = {
+            chatMessages: [],
+            timeline: [],
+            stats: { rounds: 0, tasks: 0, commits: 0, alerts: 0 },
+            agents: {
+                claude: { status: 'idle', lastSeen: null },
+                gemini: { status: 'idle', lastSeen: null },
+                heartbeat: { status: 'idle', lastSeen: null }
+            }
+        };
+
+        // ── Parse night_chat.md ──
+        function parseChatFile(text) {
+            const lines = text.split('\n').filter(l => l.match(/^\[[\d:]+\]/));
+            state.chatMessages = lines.map(line => {
+                const match = line.match(/^\[([\d:]+)\]\s+(\w+):\s*(.*)/);
+                if (match) {
+                    return { time: match[1], agent: match[2], msg: match[3] };
+                }
+                return { time: '??:??', agent: 'System', msg: line };
+            });
+
+            // Update agent last seen
+            state.chatMessages.forEach(m => {
+                const agentKey = m.agent.toLowerCase();
+                if (state.agents[agentKey]) {
+                    state.agents[agentKey].lastSeen = m.time;
+                    state.agents[agentKey].status = 'active';
+                }
+            });
+
+            renderChat();
+            renderAgents();
+            document.getElementById('chatCount').textContent = `${state.chatMessages.length} messages`;
+        }
+
+        // ── Parse summary report ──
+        function parseSummaryFile(text) {
+            const roundMatch = text.match(/Rounds completed:\s*(\d+)/);
+            if (roundMatch) state.stats.rounds = parseInt(roundMatch[1]);
+
+            // Count task/commit mentions
+            const taskMatches = text.match(/task/gi);
+            if (taskMatches) state.stats.tasks = taskMatches.length;
+
+            const commitMatches = text.match(/commit/gi);
+            if (commitMatches) state.stats.commits = Math.floor(commitMatches.length / 2);
+
+            // Build timeline from round reports
+            const roundSections = text.split(/### round/i);
+            roundSections.forEach((section, i) => {
+                if (i === 0) return;
+                const lines = section.split('\n').filter(l => l.trim());
+                state.timeline.push({
+                    time: `Round ${i}`,
+                    agent: 'System',
+                    msg: lines.slice(0, 3).join(' ').substring(0, 100)
+                });
+            });
+
+            renderStats();
+            renderTimeline();
+            updateStatusBar();
+        }
+
+        // ── Render functions ──
+        function renderChat() {
+            const viewer = document.getElementById('chatViewer');
+            if (state.chatMessages.length === 0) return;
+
+            viewer.innerHTML = state.chatMessages.map(m => {
+                let agentClass = 'chat-agent-claude';
+                const al = m.agent.toLowerCase();
+                if (al.includes('gemini') || al.includes('patrol')) agentClass = 'chat-agent-gemini';
+                if (al.includes('heartbeat') || al.includes('mimi')) agentClass = 'chat-agent-heartbeat';
+
+                return `<div class="chat-line">
+                    <span class="chat-ts">[${m.time}]</span>
+                    <span class="${agentClass}">${m.agent}:</span>
+                    ${m.msg}
+                </div>`;
+            }).join('');
+
+            viewer.scrollTop = viewer.scrollHeight;
+        }
+
+        function renderAgents() {
+            const grid = document.getElementById('agentGrid');
+            const agentDefs = [
+                { key: 'claude', name: 'Claude Code', emoji: '🧠', role: 'Developer Agent' },
+                { key: 'gemini', name: 'Gemini', emoji: '🔍', role: 'Research Agent' },
+                { key: 'heartbeat', name: 'Heartbeat', emoji: '💓', role: 'Coordinator Agent' }
+            ];
+
+            let activeCount = 0;
+            grid.innerHTML = agentDefs.map(a => {
+                const s = state.agents[a.key];
+                const isActive = s.status === 'active';
+                if (isActive) activeCount++;
+                const dotClass = isActive ? 'dot-green' : 'dot-gray';
+                const statusText = isActive ? `Active (${s.lastSeen})` : 'Idle';
+
+                return `<div class="agent-card">
+                    <div class="agent-avatar">${a.emoji}</div>
+                    <div class="agent-name">${a.name}</div>
+                    <div class="agent-engine">${a.role}</div>
+                    <div class="agent-status">
+                        <span class="status-dot ${dotClass}"></span> ${statusText}
+                    </div>
+                </div>`;
+            }).join('');
+
+            document.getElementById('agentCount').textContent = `${activeCount} active`;
+        }
+
+        function renderStats() {
+            document.getElementById('statRounds').textContent = state.stats.rounds;
+            document.getElementById('statTasks').textContent = state.stats.tasks;
+            document.getElementById('statCommits').textContent = state.stats.commits;
+            document.getElementById('statAlerts').textContent = state.stats.alerts;
+        }
+
+        function renderTimeline() {
+            const el = document.getElementById('timeline');
+            if (state.timeline.length === 0) return;
+
+            el.innerHTML = state.timeline.map(t => `
+                <div class="timeline-item">
+                    <span class="timeline-time">${t.time}</span>
+                    <span class="timeline-agent">${t.agent}</span>
+                    <span class="timeline-msg">${t.msg}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateStatusBar() {
+            const dot = document.getElementById('shiftDot');
+            const status = document.getElementById('shiftStatus');
+            const round = document.getElementById('roundInfo');
+            const lastUp = document.getElementById('lastUpdate');
+
+            if (state.stats.rounds > 0) {
+                dot.className = 'status-dot dot-green';
+                status.textContent = 'Shift data loaded';
+                round.textContent = `${state.stats.rounds} completed`;
+            }
+            lastUp.textContent = new Date().toLocaleTimeString();
+        }
+
+        // ── File handling ──
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target.result;
+                const name = file.name.toLowerCase();
+
+                if (name.includes('night_chat') || name.includes('chat')) {
+                    parseChatFile(text);
+                } else if (name.includes('summary') || name.includes('report') || name.includes('round')) {
+                    parseSummaryFile(text);
+                } else if (name.includes('health')) {
+                    document.getElementById('healthContent').innerHTML =
+                        `<pre style="font-size:0.8rem;white-space:pre-wrap;color:var(--text)">${text}</pre>`;
+                } else {
+                    parseSummaryFile(text);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function loadData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = true;
+            input.accept = '.md,.txt,.log';
+            input.onchange = (e) => {
+                Array.from(e.target.files).forEach(handleFile);
+            };
+            input.click();
+        }
+
+        // ── Drag and drop ──
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+            zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                Array.from(e.dataTransfer.files).forEach(handleFile);
+            });
+            zone.addEventListener('click', loadData);
+        });
+
+        // ── Auto-refresh (if served locally) ──
+        function refreshAll() {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            // In a real setup, fetch files from the local server
+            // For now, just update the timestamp
+        }
+
+        // ── Demo data (remove in production) ──
+        function loadDemo() {
+            parseChatFile(`[01:00] NightShift: Round 1 started
+[01:05] Claude: Starting system patrol — checking disk, memory, services
+[01:08] GeminiPatrol: Inbox checked, 2 tasks found
+[01:15] Claude: Disk at 45%, memory OK, all services running
+[01:30] Claude: Working on TASK-42 — refactoring auth module
+[01:38] GeminiPatrol: Research complete — competitor analysis done
+[02:00] Claude: TASK-42 complete, 8 tests passing, committed
+[02:05] NightShift: Round 1 done
+[02:10] NightShift: Round 2 started
+[02:15] Claude: Starting TASK-43 — adding unit tests
+[02:38] GeminiPatrol: No pending tasks, all clear
+[03:00] Claude: TASK-43 complete, 15 new tests added
+[03:05] NightShift: Round 2 done`);
+
+            state.stats = { rounds: 2, tasks: 4, commits: 6, alerts: 0 };
+            renderStats();
+            updateStatusBar();
+        }
+
+        // Load demo on first visit
+        if (!localStorage.getItem('nightshift_visited')) {
+            loadDemo();
+            localStorage.setItem('nightshift_visited', 'true');
+        }
+    </script>
+</body>
+</html>

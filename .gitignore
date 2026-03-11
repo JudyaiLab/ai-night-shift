@@ -1,0 +1,31 @@
+# Logs and reports (generated at runtime)
+logs/
+reports/
+backups/
+research/
+
+# Config with secrets
+config.env
+*.env
+!config.env.example
+
+# Runtime files
+*.pid
+*.lock
+
+# Night chat (contains session data)
+protocols/night_chat.md
+
+# Inbox messages (transient)
+protocols/bot_inbox/*/done/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
