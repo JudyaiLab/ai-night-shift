@@ -132,7 +132,7 @@ tmux capture-pane -t <session> -p | grep "shift+tab"
    - 준비되면 Ctrl+Y 전송
    - 전환 성공 확인
 
-구현 세부사항은 [gemini/README.md](../gemini/README.md#known-issue-yolo-mode-auto-enable)를 참조하세요.
+구현 세부사항은 [gemini/README.md](../gemini/README.md#known-issue-yolo-mode-in-automated-sessions)를 참조하세요.
 
 ## 도움말 얻기
 

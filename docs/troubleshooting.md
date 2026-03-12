@@ -132,7 +132,7 @@ tmux capture-pane -t <session> -p | grep "shift+tab"
    - Sends Ctrl+Y when ready
    - Verifies the toggle succeeded
 
-See [gemini/README.md](../gemini/README.md#known-issue-yolo-mode-auto-enable) for implementation details.
+See [gemini/README.md](../gemini/README.md#known-issue-yolo-mode-in-automated-sessions) for implementation details.
 
 ## Getting Help
 

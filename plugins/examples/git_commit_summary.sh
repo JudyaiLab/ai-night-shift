@@ -27,7 +27,7 @@ SUMMARY_FILE="${REPORTS_DIR}/${DATE_TAG}_git_summary.md"
     echo ""
 
     # Search for repos with today's commits
-    find "$PROJECT_DIRS" -maxdepth 3 -name ".git" -type d 2>/dev/null | while read gitdir; do
+    find "$PROJECT_DIRS" -maxdepth 3 -name ".git" -type d 2>/dev/null | while read -r gitdir; do
         repo_dir=$(dirname "$gitdir")
         repo_name=$(basename "$repo_dir")
 

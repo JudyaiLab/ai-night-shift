@@ -110,20 +110,20 @@ log "Window ends at: $(date -d "@$WINDOW_END" '+%Y-%m-%d %H:%M:%S' 2>/dev/null |
 
 ROUND=0
 CONSECUTIVE_COMPLETE=0
-while [ $ROUND -lt $MAX_ROUNDS ]; do
+while [ "$ROUND" -lt "$MAX_ROUNDS" ]; do
     ROUND=$((ROUND + 1))
     NOW=$(date +%s)
     REMAINING=$((WINDOW_END - NOW))
 
     # Check if window is expiring
-    if [ $REMAINING -le $SHUTDOWN_BUFFER ]; then
+    if [ "$REMAINING" -le "$SHUTDOWN_BUFFER" ]; then
         log "Window expiring in ${REMAINING}s (buffer=${SHUTDOWN_BUFFER}s), stopping"
         break
     fi
 
     # Calculate round timeout (min of configured timeout and remaining window)
     EFFECTIVE_TIMEOUT=$ROUND_TIMEOUT
-    if [ $((REMAINING - SHUTDOWN_BUFFER)) -lt $EFFECTIVE_TIMEOUT ]; then
+    if [ "$((REMAINING - SHUTDOWN_BUFFER))" -lt "$EFFECTIVE_TIMEOUT" ]; then
         EFFECTIVE_TIMEOUT=$((REMAINING - SHUTDOWN_BUFFER))
     fi
 
@@ -189,7 +189,7 @@ while [ $ROUND -lt $MAX_ROUNDS ]; do
     if grep -q "$COMPLETION_SIGNAL" "$ROUND_REPORT" 2>/dev/null; then
         CONSECUTIVE_COMPLETE=$((CONSECUTIVE_COMPLETE + 1))
         log "Completion signal detected ($CONSECUTIVE_COMPLETE/$COMPLETION_THRESHOLD)"
-        if [ $CONSECUTIVE_COMPLETE -ge $COMPLETION_THRESHOLD ]; then
+        if [ "$CONSECUTIVE_COMPLETE" -ge "$COMPLETION_THRESHOLD" ]; then
             log "Completion threshold reached, stopping early"
             break
         fi

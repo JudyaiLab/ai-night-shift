@@ -44,6 +44,7 @@ cp plugins/examples/system_health.sh plugins/enabled/
 |--------|-------|-------------|
 | `system_health.sh` | pre | Disk, memory, Docker health check |
 | `backup.sh` | pre | Backup configs and chat history |
+| `de_sloppify.sh` | task | Quality cleanup pass — removes code slop |
 | `git_commit_summary.sh` | post | Summary of all commits made |
 | `morning_report.sh` | post | Compile morning briefing + TG push |
 
