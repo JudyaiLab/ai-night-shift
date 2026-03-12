@@ -80,7 +80,7 @@ ADAPTER_FILE="${NIGHT_SHIFT_DIR}/adapters/${AGENT_ADAPTER}.sh"
 if [ ! -f "$ADAPTER_FILE" ]; then
     echo "ERROR: Adapter not found: $ADAPTER_FILE"
     echo "Available adapters:"
-    ls "${NIGHT_SHIFT_DIR}/adapters/"*.sh 2>/dev/null | xargs -I{} basename {} .sh
+    find "${NIGHT_SHIFT_DIR}/adapters/" -maxdepth 1 -name "*.sh" -exec basename {} .sh \;
     exit 1
 fi
 # shellcheck source=/dev/null

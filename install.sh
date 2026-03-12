@@ -20,8 +20,8 @@ set -euo pipefail
 # ── Defaults ──
 INSTALL_DIR="${HOME}/ai-night-shift"
 SETUP_CRON=true
-# shellcheck disable=SC2034  # Used by --with-systemd flag
-SETUP_SYSTEMD=false
+# shellcheck disable=SC2034
+SETUP_SYSTEMD=false  # Reserved: used by --with-systemd flag
 CLAUDE_SCHEDULE="0 17 * * *"       # 5 PM UTC (adjust to your timezone)
 GEMINI_SCHEDULE="45 17,19,21 * * *" # Every 2h during night window
 
@@ -50,8 +50,8 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --dir) INSTALL_DIR="$2"; shift 2 ;;
         --no-cron) SETUP_CRON=false; shift ;;
-        --no-systemd) SETUP_SYSTEMD=false; shift ;;
-        --with-systemd) SETUP_SYSTEMD=true; shift ;;
+        --no-systemd) SETUP_SYSTEMD=false; shift ;;  # shellcheck disable=SC2034
+        --with-systemd) SETUP_SYSTEMD=true; shift ;;  # shellcheck disable=SC2034
         --claude-schedule) CLAUDE_SCHEDULE="$2"; shift 2 ;;
         --gemini-schedule) GEMINI_SCHEDULE="$2"; shift 2 ;;
         --help|-h)
