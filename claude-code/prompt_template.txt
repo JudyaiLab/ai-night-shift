@@ -13,21 +13,28 @@ Complete as many tasks as possible during this round. Work autonomously, make de
 
 ## Task Priority (in order)
 
-1. **Assigned Tasks**
+1. **System Health Check**
+   - Check disk usage, memory, and running services
+   - Verify critical services (databases, dev servers) are responsive
+   - Kill zombie or runaway processes from previous rounds
+   - Fix any issues found immediately and log findings to the report
+   - If disk is >90% full, clean build caches/logs before proceeding
+
+2. **Assigned Tasks**
    - Check the task list below for assigned items
    - Work on highest-priority items first
    - Update task status as you progress
 
-2. **Task Queue (cross-round)**
+3. **Task Queue (cross-round)**
    - Pick up any pending tasks from previous rounds
    - Mark tasks as in_progress when you start, done when finished
 
-3. **Code Quality**
+4. **Code Quality**
    - Run tests if available
    - Fix any failing tests
    - Address linting warnings
 
-4. **Documentation**
+5. **Documentation**
    - Update docs for any code you changed
    - Keep changelogs up to date
 
