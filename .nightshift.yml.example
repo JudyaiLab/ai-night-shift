@@ -1,0 +1,30 @@
+# ============================================================================
+# .nightshift.yml — Per-project configuration for AI Night Shift
+#
+# Place this file in the root of your project repository.
+# The night shift agent will auto-detect project settings from this file.
+#
+# If this file is absent, the agent will auto-detect settings from
+# package.json, Cargo.toml, go.mod, pyproject.toml, etc.
+# ============================================================================
+
+project:
+  name: my-project
+  language: typescript
+  test_cmd: "npm test"
+  build_cmd: "npm run build"
+  lint_cmd: "npm run lint"
+  branch_strategy: feature-branch
+  base_branch: main
+  ci: github-actions
+
+scope:
+  include:
+    - "src/"
+    - "tests/"
+    - "lib/"
+  exclude:
+    - "node_modules/"
+    - "dist/"
+    - ".env"
+    - "*.lock"

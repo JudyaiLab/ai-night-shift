@@ -1,0 +1,68 @@
+# ============================================================================
+# AI Night Shift — Configuration (YAML format)
+#
+# Copy this to config.yml and adjust values to your setup.
+# This is an alternative to config.env with better structure.
+# Both formats are supported — config.yml takes precedence if both exist.
+# ============================================================================
+
+general:
+  night_shift_dir: "${HOME}/ai-night-shift"
+  agent_name: "my-agent"
+
+# ── Agent settings ──
+agent:
+  adapter: claude-code        # claude-code, codex-cli, aider, or custom
+  # bin: claude               # Agent binary path (leave empty for adapter default)
+  skip_permissions: false     # WARNING: true = unrestricted access
+
+# ── Night shift schedule ──
+shift:
+  max_rounds: 5
+  window_hours: 6
+  round_timeout: 9000        # seconds per round (2.5h)
+  rate_limit_wait: 3600      # seconds to wait on rate limit
+  shutdown_buffer: 300        # seconds buffer before window end
+
+# ── Claude Code specific ──
+claude:
+  # model: claude-sonnet-4-6  # Model to use
+  # max_turns: 50              # Max turns per round
+  # allowed_tools: "Read,Edit,Write,Bash,Grep,Glob"  # Restrict tools
+  # continue: false            # Resume previous session between rounds
+  # system_prompt: ""          # Custom system prompt
+
+# ── Gemini module ──
+gemini:
+  bin: gemini
+
+# ── Guardrails ──
+guardrails:
+  max_lines_changed: 500
+  max_files_changed: 20
+  action: warn                # warn, block, or revert
+
+# ── Multi-project ──
+projects:
+  # dirs: "${HOME}/project-a,${HOME}/project-b"
+
+# ── Git workflow ──
+git:
+  workflow: feature-branch    # feature-branch, task-branch, or trunk-based
+  base_branch: main
+  pr_draft: true
+  branch_prefix: nightshift
+
+# ── Task management ──
+tasks:
+  # tool: github              # github, linear, or file
+
+# ── Reporting ──
+reporting:
+  # telegram_bot_token: "your_bot_token"
+  # telegram_chat_id: "your_chat_id"
+
+# ── Code review plugin ──
+review:
+  # cli: gemini               # Which CLI to use for code review
+  # diff_limit: 500           # Max lines of diff to review
